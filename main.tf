@@ -6,10 +6,7 @@ terraform {
   required_version = ">= 0.12"
 }
 
-provider "aws" {
-  region  = var.aws_region
-  version = ">= 2.12"
-}
+provider "aws" {}
 
 # -----------------------------------------------------------------
 # CREATE LAMBDA BASE LAYER CONTAINING PYTHON LIBRARIES
@@ -37,7 +34,7 @@ data "archive_file" "lambda_function" {
 }
 
 locals {
-  dynamic_description = "Routes SNS topic '${var.sns_topic_name}' to CloudWatch group '${var.log_group_name}' and stream '${var.log_stream_name}'"
+  dynamic_description = "Routes SNS topic '${var.sns_topic_name}' to CloudWatch group '${var.log_group.name}' and stream '${var.log_stream_name}'"
 }
 
 # create lambda using function only zip on top of base layer
@@ -60,7 +57,7 @@ resource "aws_lambda_function" "sns_cloudwatchlog" {
 
   environment {
     variables = {
-      log_group  = var.log_group_name
+      log_group  = var.log_group.name
       log_stream = var.log_stream_name
     }
   }
@@ -87,23 +84,6 @@ data "aws_sns_topic" "sns_log_topic" {
 }
 
 # -----------------------------------------------------------------
-# CLOUDWATCH LOG GROUP
-#   create new log_group (if create_log_group set)
-# -----------------------------------------------------------------
-
-resource "aws_cloudwatch_log_group" "sns_logged_item_group" {
-  count             = var.create_log_group ? 1 : 0
-  name              = var.log_group_name
-  retention_in_days = var.log_group_retention_days
-}
-
-# retrieve log group if not created, arn included in outputs
-data "aws_cloudwatch_log_group" "sns_logged_item_group" {
-  count = var.create_log_group ? 0 : 1
-  name  = var.log_group_name
-}
-
-# -----------------------------------------------------------------
 # CLOUDWATCH LOG STREAM
 #   created new log stream (if create_log_stream set)
 # -----------------------------------------------------------------
@@ -112,7 +92,7 @@ data "aws_cloudwatch_log_group" "sns_logged_item_group" {
 resource "aws_cloudwatch_log_stream" "sns_logged_item_stream" {
   count          = var.create_log_stream ? 1 : 0
   name           = var.log_stream_name
-  log_group_name = var.create_log_group ? aws_cloudwatch_log_group.sns_logged_item_group[0].name : var.log_group_name
+  log_group_name = var.log_group.name
 }
 
 # -----------------------------------------------------------------
@@ -217,6 +197,8 @@ JSON
 # -----------------------------------------------------------------
 
 resource "aws_lambda_permission" "warmer_multi" {
+  count = var.create_warmer_event ? 1 : 0
+
   statement_id = "AllowExecutionFromCloudWatch"
   action = "lambda:InvokeFunction"
   function_name = aws_lambda_function.sns_cloudwatchlog.function_name

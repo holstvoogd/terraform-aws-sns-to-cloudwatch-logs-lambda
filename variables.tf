@@ -2,25 +2,24 @@
 # REQUIRED VARIABLES WITHOUT DEFAULT VALUES
 # -----------------------------------------------------------------
 
-variable "aws_region" {
-  type        = string
-  description = "Region where AWS resources will be created."
-}
-
 variable "sns_topic_name" {
   type        = string
   description = "Name of SNS Topic logging to CloudWatch Log."
-}
-
-variable "log_group_name" {
-  type        = string
-  description = "Name of CloudWatch Log Group created or used (if previously created)."
 }
 
 variable "log_stream_name" {
   type        = string
   description = "Name of CloudWatch Log Stream created or used (if previously created).  If using an existing stream it must exist in the Log group specified in 'log_group_name'."
 }
+
+variable "log_group" {
+  description = "CloudWatch Log Group resource to use."
+  type = object({
+    name = string
+    arn = string
+  })
+}
+
 
 # -----------------------------------------------------------------
 # VARIABLES DEFINITIONS WITH DEFAULT VALUES
@@ -31,11 +30,6 @@ variable "log_stream_name" {
 variable "create_sns_topic" {
   default     = true
   description = "Boolean flag that determines if SNS topic, 'sns_topic_name' is created. If 'false' it uses an existing topic of that name."
-}
-
-variable "create_log_group" {
-  default     = true
-  description = "Boolean flag that determines if log group, 'log_group_name' is created.  If 'false' it uses an existing group of that name."
 }
 
 variable "create_log_stream" {

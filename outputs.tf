@@ -42,16 +42,6 @@ output "sns_topic_arn" {
   value       = var.create_sns_topic ? aws_sns_topic.sns_log_topic[0].arn : data.aws_sns_topic.sns_log_topic[0].arn
 }
 
-output "log_group_name" {
-  description = "Name of CloudWatch Log Group."
-  value       = var.log_group_name
-}
-
-output "log_group_arn" {
-  description = "ARN of CloudWatch Log Group."
-  value       = var.create_log_group ? aws_cloudwatch_log_group.sns_logged_item_group[0].arn : data.aws_cloudwatch_log_group.sns_logged_item_group[0].arn
-}
-
 output "log_stream_name" {
   description = "Name of CloudWatch Log Stream."
   value       = var.log_stream_name
