@@ -16,7 +16,7 @@ variable "log_group" {
   description = "CloudWatch Log Group resource to use."
   type = object({
     name = string
-    arn = string
+    arn  = string
   })
 }
 

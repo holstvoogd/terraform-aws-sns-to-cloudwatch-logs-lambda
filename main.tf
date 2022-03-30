@@ -6,8 +6,6 @@ terraform {
   required_version = ">= 0.12"
 }
 
-provider "aws" {}
-
 # -----------------------------------------------------------------
 # CREATE LAMBDA BASE LAYER CONTAINING PYTHON LIBRARIES
 # -----------------------------------------------------------------
@@ -199,10 +197,10 @@ JSON
 resource "aws_lambda_permission" "warmer_multi" {
   count = var.create_warmer_event ? 1 : 0
 
-  statement_id = "AllowExecutionFromCloudWatch"
-  action = "lambda:InvokeFunction"
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.sns_cloudwatchlog.function_name
-  principal = "events.amazonaws.com"
-  source_arn = aws_cloudwatch_event_rule.warmer[0].arn
-  qualifier = var.lambda_publish_func ? aws_lambda_function.sns_cloudwatchlog.version : null
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.warmer[0].arn
+  qualifier     = var.lambda_publish_func ? aws_lambda_function.sns_cloudwatchlog.version : null
 }
